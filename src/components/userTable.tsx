@@ -1,42 +1,20 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Modal,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { DeleteUserApi, EditUserApi, GetUserApi } from "../api/userApi";
+import useFetchData from "../hooks/useFetchData";
 import { UserType } from "../types/userType";
 import AddUserModal from "./AddUserModal";
 import EditUserModal from "./EditUserModal";
-import useFetchData from "../hooks/useFetchData";
 
-interface Props {}
-
-const style = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 4,
-};
-
-const UserTable = (props: Props) => {
+const UserTable = () => {
   const [users, setUsers] = useState<UserType[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserType | null>(null);
   const { data, error, loading } = useFetchData<UserType>(GetUserApi);
-  useEffect(() => {
-    console.log(users);
-  }, [users]);
+
   useEffect(() => {
     setUsers(data);
   }, [data]);
@@ -54,7 +32,6 @@ const UserTable = (props: Props) => {
   };
   const handleEdit = (user: UserType) => {
     setEditingUser(user);
-    console.log(user);
     setIsEditModalOpen(true);
   };
 

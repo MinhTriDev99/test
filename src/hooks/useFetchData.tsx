@@ -1,10 +1,5 @@
-import { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
-
-interface ApiResponse<T = {}> {
-  data?: T;
-  [key: string]: any;
-}
+import { useEffect, useState } from "react";
 
 const useFetchData = <T = {}>(url: string): { data: T[]; loading: boolean; error: string } => {
   const [data, setData] = useState<T[]>([]);

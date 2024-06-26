@@ -1,11 +1,10 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
-import { Modal, Box, Button, TextField, CircularProgress } from "@mui/material";
-import { useFormik } from "formik";
-import * as yup from "yup";
+import { Box, Button, CircularProgress, Modal, TextField } from "@mui/material";
 import axios from "axios";
+import { useFormik } from "formik";
+import React, { Dispatch, SetStateAction, useState } from "react";
+import * as yup from "yup";
 import { AddUserApi } from "../api/userApi";
 import { UserType } from "../types/userType";
-import { Circle } from "@mui/icons-material";
 
 // Định nghĩa Props
 interface EditUserModalProps {
