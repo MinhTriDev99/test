@@ -3,5 +3,5 @@ export interface UserType {
   address: string;
   phone: string;
   id: string;
-  birthday: Date;
+  birthday: string;
 }

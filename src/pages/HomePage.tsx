@@ -1,12 +1,13 @@
-import React from 'react'
-import UserTable from '../components/userTable'
+import WebcamCapture from "../components/WebcamCapture";
+import UserTable from "../components/userTable";
 
-type Props = {}
-
-const HomePage = (props: Props) => {
+const HomePage = () => {
   return (
-    <div><UserTable/></div>
-  )
-}
+    <>
+      <UserTable />
+      <WebcamCapture />
+    </>
+  );
+};
 
-export default HomePage
+export default HomePage;

@@ -1,14 +1,17 @@
-import React from "react";
-import { Modal, Box, Button, TextField } from "@mui/material";
+import React, { Dispatch, SetStateAction, useState } from "react";
+import { Modal, Box, Button, TextField, CircularProgress } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import axios from "axios";
 import { AddUserApi } from "../api/userApi";
+import { UserType } from "../types/userType";
+import { Circle } from "@mui/icons-material";
 
 // Định nghĩa Props
 interface EditUserModalProps {
   isAddModalOpen: boolean;
   handleCloseAddModal: () => void;
+  setUsers: Dispatch<SetStateAction<UserType[]>>;
 }
 
 const style = {
@@ -25,7 +28,9 @@ const style = {
 const AddUserModal: React.FC<EditUserModalProps> = ({
   isAddModalOpen,
   handleCloseAddModal,
+  setUsers,
 }) => {
+  const [loading, setLoading] = useState<boolean>(false);
   // Định nghĩa validation schema
   const validationSchema = yup.object({
     name: yup.string().required("Please enter your name"),
@@ -48,12 +53,14 @@ const AddUserModal: React.FC<EditUserModalProps> = ({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        await axios.post(AddUserApi, values);
-
+        setLoading(true);
+        const response = await axios.post(AddUserApi, values);
+        setUsers((prevUsers) => [...prevUsers, response.data]);
         formik.resetForm();
-
+        setLoading(false);
         handleCloseAddModal();
       } catch (error) {
+        setLoading(false);
         console.error(error);
       }
     },
@@ -79,7 +86,7 @@ const AddUserModal: React.FC<EditUserModalProps> = ({
             id="phone"
             name="phone"
             label="Phone"
-            type="number"
+            inputProps={{ maxLength: 10 }}
             variant="outlined"
             value={formik.values.phone}
             onChange={formik.handleChange}
@@ -110,16 +117,31 @@ const AddUserModal: React.FC<EditUserModalProps> = ({
             helperText={formik.touched.address && formik.errors.address}
           />
 
-          <div>
-            <Button type="submit">Add user</Button>
+          <Box
+            sx={{
+              display: "flex",
+              gap: "10px",
+              justifyContent: "end",
+              marginTop: "10px",
+            }}
+          >
+            <Button type="submit" disabled={loading}>
+              {loading && (
+                <CircularProgress size={"20px"} sx={{ marginRight: "5px" }} />
+              )}
+              Add user
+            </Button>
             <Button
-              onClick={handleCloseAddModal}
+              onClick={() => {
+                formik.resetForm();
+                handleCloseAddModal();
+              }}
               variant="contained"
               color="info"
             >
               Cancel
             </Button>
-          </div>
+          </Box>
         </form>
       </Box>
     </Modal>

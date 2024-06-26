@@ -1,32 +1,32 @@
-import { useEffect, useState } from 'react';
-import axios, { AxiosResponse } from 'axios';
+import { useEffect, useState } from "react";
+import axios, { AxiosResponse } from "axios";
 
-interface ApiResponse {
-    id: number;
-    name: string;
+interface ApiResponse<T = {}> {
+  data?: T;
+  [key: string]: any;
 }
 
-const useFetchData = (url: string): { data: ApiResponse[]; loading: boolean; error: string } => {
-    const [data, setData] = useState<ApiResponse[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string>('');
+const useFetchData = <T = {}>(url: string): { data: T[]; loading: boolean; error: string } => {
+  const [data, setData] = useState<T[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response: AxiosResponse<ApiResponse[]> = await axios.get(url);
-                setData(response.data);
-                setLoading(false);
-            } catch (error) {
-                setError('Error fetching data');
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response: AxiosResponse<T[]> = await axios.get(url);
+        setData(response.data);
+        setLoading(false);
+      } catch (error) {
+        setError("Error fetching data");
+        setLoading(false);
+      }
+    };
 
-        fetchData();
-    }, [url]);
+    fetchData();
+  }, [url]);
 
-    return { data, loading, error };
+  return { data, loading, error };
 };
 
 export default useFetchData;

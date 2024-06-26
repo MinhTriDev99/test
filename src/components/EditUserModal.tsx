@@ -1,14 +1,16 @@
-import React from "react";
-import { Modal, Box, Button, TextField } from "@mui/material";
-import { useFormik } from "formik";
-import * as yup from "yup";
+import { Box, Button, CircularProgress, Modal, TextField } from "@mui/material";
 import axios from "axios";
+import { useFormik } from "formik";
+import React, { Dispatch, SetStateAction, useState } from "react";
+import * as yup from "yup";
 import { EditUserApi } from "../api/userApi";
+import { UserType } from "../types/userType";
 
-// Define Props
 interface EditUserModalProps {
   isEditModalOpen: boolean;
   handleCloseEditModal: () => void;
+  data: UserType | null;
+  setUsers: Dispatch<SetStateAction<UserType[]>>;
 }
 
 const style = {
@@ -25,7 +27,10 @@ const style = {
 const EditUserModal: React.FC<EditUserModalProps> = ({
   isEditModalOpen,
   handleCloseEditModal,
+  data,
+  setUsers,
 }) => {
+  const [loading, setLoading] = useState<boolean>(false);
   // Define validation schema
   const validationSchema = yup.object({
     name: yup.string().required("Please enter your name"),
@@ -40,23 +45,43 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   // Initialize formik
   const formik = useFormik({
     initialValues: {
-      name: "",
-      phone: "",
-      birthday: "",
-      address: "",
+      id: data?.id || "",
+      name: data?.name || "",
+      phone: data?.phone || "",
+      birthday: data?.birthday
+        ? new Date(data.birthday).toISOString().slice(0, 10)
+        : "",
+      address: data?.address || "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        await axios.put(EditUserApi, values);
-
+        setLoading(true);
+        await axios.put(EditUserApi(values.id), values);
+        setUsers((prevUsers) => {
+          const updatedUsers = prevUsers.map((user) => {
+            if (user.id === values.id) {
+              return {
+                ...user,
+                name: values.name,
+                phone: values.phone,
+                birthday: values.birthday,
+                address: values.address,
+              };
+            }
+            return user;
+          });
+          return updatedUsers;
+        });
+        setLoading(false);
         formik.resetForm();
-
         handleCloseEditModal();
       } catch (error) {
+        setLoading(false);
         console.error(error);
       }
     },
+    enableReinitialize: true,
   });
 
   return (
@@ -79,8 +104,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             id="phone"
             name="phone"
             label="Phone"
-            type="number"
+            type="string"
             variant="outlined"
+            inputProps={{ maxLength: 10 }}
             value={formik.values.phone}
             onChange={formik.handleChange}
             error={formik.touched.phone && Boolean(formik.errors.phone)}
@@ -110,8 +136,20 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             helperText={formik.touched.address && formik.errors.address}
           />
 
-          <div>
-            <Button type="submit">Edit user</Button>
+          <Box
+            sx={{
+              display: "flex",
+              gap: "10px",
+              justifyContent: "end",
+              marginTop: "10px",
+            }}
+          >
+            <Button type="submit" disabled={loading}>
+              {loading && (
+                <CircularProgress size={"20px"} sx={{ marginRight: "5px" }} />
+              )}
+              Edit user
+            </Button>
             <Button
               onClick={handleCloseEditModal}
               variant="contained"
@@ -119,7 +157,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             >
               Cancel
             </Button>
-          </div>
+          </Box>
         </form>
       </Box>
     </Modal>
